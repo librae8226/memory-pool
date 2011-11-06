@@ -3,8 +3,8 @@
 #include "mempool.h"
 
 
-#define ALLOC_NODE_NUM	16
-#define NEW_NODE_NUM	16
+#define ALLOC_NODE_NUM	32
+#define NEW_NODE_NUM	32
 
 int main(int argc, char *argv[])
 {
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 		mp_del_node(h_mem, pp_node_array[cnt]);
 	}
 	mp_del_node(h_mem, pp_node_array[NEW_NODE_NUM - 1]);
-	for (cnt = 0; cnt < NEW_NODE_NUM; cnt++) {
+	for (cnt = 0; cnt < NEW_NODE_NUM; cnt += 7) {
 		pp_node_array[cnt] = mp_new_node(h_mem);
 	}
 //	pp_node_array[3] = mp_new_node(h_mem);
