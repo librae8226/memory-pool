@@ -3,18 +3,16 @@
 #include "mempool.h"
 
 
-#define ALLOC_NODE_NUM	32
-#define NEW_NODE_NUM	32
+#define ALLOC_NODE_NUM	16
+#define NEW_NODE_NUM	16
 
 int main(int argc, char *argv[])
 {
 	int *h_mem = NULL;
 	int cnt = 0;
-	struct mp_mem_head_t *p_mem_head = NULL;
 	struct mp_node_t *pp_node_array[NEW_NODE_NUM];
-	struct mp_node_t *p_node = NULL;
 
-	p_mem_head = mp_alloc(&h_mem, ALLOC_NODE_NUM);
+	mp_alloc(&h_mem, ALLOC_NODE_NUM);
 	for (cnt = 0; cnt < NEW_NODE_NUM; cnt++) {
 		pp_node_array[cnt] = mp_new_node(h_mem);
 		if (pp_node_array[cnt] == NULL) {
@@ -22,6 +20,21 @@ int main(int argc, char *argv[])
 			return -1;
 		}
 	}
+
+#if 1
+	/* container_of test */
+	pp_node_array[3]->node_id = 3;
+	pp_node_array[3]->data.a = 5;
+	struct item_t *p_item = NULL;
+	struct test_t *p_test = &(pp_node_array[3]->data.t);
+	p_item = container_of(p_test, struct item_t, t);
+	printf(">>> data.a: %d\n", p_item->a);
+
+	struct mp_node_t *p_node_test = NULL;
+	p_node_test = container_of(p_item, struct mp_node_t, data);
+	printf(">>> node_id: %d\n", p_node_test->node_id);
+#endif
+
 	for (cnt = 0; cnt < NEW_NODE_NUM; cnt += 3) {
 		mp_del_node(h_mem, pp_node_array[cnt]);
 	}
@@ -29,31 +42,7 @@ int main(int argc, char *argv[])
 	for (cnt = 0; cnt < NEW_NODE_NUM; cnt += 7) {
 		pp_node_array[cnt] = mp_new_node(h_mem);
 	}
-//	pp_node_array[3] = mp_new_node(h_mem);
-//	pp_node_array[6] = mp_new_node(h_mem);
-//	pp_node_array[9] = mp_new_node(h_mem);
-//	pp_node_array[12] = mp_new_node(h_mem);
-//	pp_node_array[15] = mp_new_node(h_mem);
-	p_node = (struct mp_node_t *)(p_mem_head + 1);
-	for (cnt = 0; cnt < ALLOC_NODE_NUM; cnt++, p_node++) {
-		printf("node: %p\tprev: %p\tnext: %p\tused: %d\n",
-				p_node, p_node->p_prev, p_node->p_next, p_node->used);
-	}
-#if 0
-	for (cnt = 0; cnt < NEW_NODE_NUM; cnt++) {
-		if (pp_node_array[cnt] != NULL) {
-			printf("p_node: %p, p_node prev: %p, p_node next: %p\n",
-					pp_node_array[cnt],
-					pp_node_array[cnt]->p_prev,
-					pp_node_array[cnt]->p_next);
-		}
-	}
-#endif
-	printf("------------- memory pool info ------------\n");
-	printf("first %p, tail %p, used: %d\n",
-			p_mem_head->p_node_first,
-			p_mem_head->p_node_tail,
-			p_mem_head->used_node_num);
+	mp_dump_pool(h_mem);
 	mp_clean(h_mem);
 	return 0;
 }
