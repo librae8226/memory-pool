@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-#if 1
+#if 0
 	/* container_of test */
 	pp_node_array[3]->node_id = 3;
 	pp_node_array[3]->data.a = 5;
