@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 	for (cnt = 0; cnt < NEW_NODE_NUM; cnt++) {
 		pp_node_array[cnt] = mp_new_node(h_mem);
 		if (pp_node_array[cnt] == NULL) {
-			mp_clean(h_mem);
+			mp_clean(&h_mem);
 			return -1;
 		}
 	}
@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
 		pp_node_array[cnt] = mp_new_node(h_mem);
 	}
 	mp_dump_pool(h_mem);
-	mp_clean(h_mem);
+	mp_clean(&h_mem);
+	printf("h_mem: %p\n", h_mem);
 	return 0;
 }

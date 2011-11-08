@@ -81,9 +81,10 @@ struct mp_mem_head_t *mp_alloc(mp_i32 **pp_mem_base, mp_u32 max_node_num)
  * @return   status code
  * @note     this function will not check if this memory has been allocated
  */
-status_t mp_clean(mp_i32 *p_mem_base)
+status_t mp_clean(mp_i32 **pp_mem_base)
 {
-	mp_free(p_mem_base);
+	mp_free(*pp_mem_base);
+	*pp_mem_base = NULL;
 	return 0;
 }
 
@@ -135,11 +136,6 @@ struct mp_node_t *mp_new_node(mp_i32 *p_mem_base)
 		p_mem_head->p_node_tail = p_node_new;
 		p_mem_head->used_node_num++;
 	}
-#ifdef DEBUG_PRINT_ON
-	printf("node: %p\tprev: %p\tnext: %p\tused: %d\tid: %d\n",
-			p_node_new, p_node_new->p_prev,	p_node_new->p_next,
-			p_node_new->used, p_node_new->id);
-#endif
 	return p_node_new;
 }
 
@@ -232,5 +228,8 @@ struct mp_node_t *mp_get_node(mp_i32 *p_mem_base, mp_u32 node_id)
 	p_mem_head = (struct mp_mem_head_t *)p_mem_base;
 	p_node = (struct mp_node_t *)(p_mem_head + 1) + node_id - 1;
 
-	return p_node;
+	if (p_node->used == 1) {
+		return p_node;
+	} else
+		return NULL;
 }

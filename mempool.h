@@ -81,7 +81,7 @@ struct mp_node_t {
 };
 
 struct mp_mem_head_t *mp_alloc(mp_i32 **pp_mem_base, mp_u32 max_node_num);
-status_t mp_clean(mp_i32 *p_mem_base);
+status_t mp_clean(mp_i32 **pp_mem_base);
 struct mp_node_t *mp_new_node(mp_i32 *p_mem_base);
 status_t mp_del_node(mp_i32 *p_mem_base, struct mp_node_t *p_node);
 void mp_dump_pool(mp_i32 *p_mem_base);
