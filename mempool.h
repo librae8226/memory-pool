@@ -31,8 +31,8 @@
  * customization area
  */
 //#define DEBUG_PRINT_ON	0
-//#define ENABLE_SHM	0
-//#define ENABLE_SEM	0
+#define ENABLE_SHM	0
+#define ENABLE_SEM	0
 
 
 #define mp_malloc(x)	malloc(x)
@@ -62,11 +62,13 @@ typedef int		status_t;
  * note: on 64-bit machine, a pointer is 8 bytes (64 bit)
  *       memory will be aligned by 8-byte
  */
+#if 0
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
 #define container_of(ptr, type, member) ({ \
 		const typeof( ((type *)0)->member ) *__mptr = (ptr); \
 		(type *)( (char *)__mptr - offsetof(type,member) );})
+#endif
 
 struct mp_mem_head_t {
 	struct mp_node_t *p_node_first;
@@ -80,9 +82,11 @@ struct mp_mem_head_t {
 
 struct mp_node_t {
 	struct mp_node_t *p_prev;
+	mp_u32 prev_offset;
 	mp_u32 used;
 	mp_u32 node_id;
 	elem_t data;
+	mp_u32 next_offset;
 	struct mp_node_t *p_next;
 };
 
@@ -95,7 +99,7 @@ status_t mp_del_node_of(mp_i32 *p_mem_base, struct mp_node_t *p_node);
 void mp_dump_pool(mp_i32 *p_mem_base);
 struct mp_node_t *mp_get_node(mp_i32 *p_mem_base, mp_u32 node_id);
 #ifdef ENABLE_SHM
-mp_i32 mp_shm_alloc(mp_i32 **pp_mem_base, key_t key, mp_u32 max_node_num);
+mp_i32 mp_shm_alloc(mp_i32 **pp_mem_base, mp_i32 key, mp_u32 max_node_num);
 status_t mp_shm_clean(mp_i32 shmid, mp_i32 **pp_mem_base);
 status_t mp_shm_detach(mp_i32 shmid, mp_i32 *p_mem_base);
 status_t mp_shm_init(mp_i32 *p_mem_base, mp_u32 max_node_num);

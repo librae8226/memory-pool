@@ -424,6 +424,8 @@ status_t mp_shm_init(mp_i32 *p_mem_base, mp_u32 max_node_num)
 	memset(p_mem_base, 0, size);
 	p_mem_head = (struct mp_mem_head_t *)p_mem_base;
 	p_mem_head->p_node_first = NULL;
+	p_mem_head->node_first_offset = -1;
+	p_mem_head->node_tail_offset = -1;
 	p_mem_head->size = size;
 	p_mem_head->used_node_num = 0;
 	p_mem_head->max_node_num = max_node_num;
@@ -532,10 +534,9 @@ union semun {
 };
 
 /*
- * @brief
- * @param
- *
- * @return
+ * @brief    create a semaphore using linux ipc mechanism
+ * @param    key -i- used to specify the same semaphore between processes
+ * @return   semaphore id
  */
 mp_i32 mp_sem_create(mp_i32 key)
 {
@@ -552,10 +553,9 @@ mp_i32 mp_sem_create(mp_i32 key)
 }
 
 /*
- * @brief
- * @param
- *
- * @return
+ * @brief    delete a semaphore which has been created by mp_sem_create()
+ * @param    semid -i- the semaphore id returned while successfully creating
+ * @return   status code
  */
 status_t mp_sem_delete(mp_i32 semid)
 {
@@ -567,10 +567,9 @@ status_t mp_sem_delete(mp_i32 semid)
 }
 
 /*
- * @brief
- * @param
- *
- * @return
+ * @brief    try to acquire semaphore
+ * @param    semid -i- the semaphore id returned while successfully creating
+ * @return   status code
  */
 status_t mp_sem_acquire(mp_i32 semid)
 {
@@ -586,10 +585,9 @@ status_t mp_sem_acquire(mp_i32 semid)
 }
 
 /*
- * @brief
- * @param
- *
- * @return
+ * @brief   release the semaphore which has been aquired by this specific process
+ * @param   semid -i- the semaphore id returned while successfully creating
+ * @return  status code
  */
 status_t mp_sem_release(mp_i32 semid)
 {
