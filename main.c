@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
 	mp_alloc(&h_mem, ALLOC_NODE_NUM);
 	for (cnt = 0; cnt < NEW_NODE_NUM; cnt++) {
-		pp_node_array[cnt] = mp_new_node(h_mem);
+		pp_node_array[cnt] = mp_new_node_of(h_mem);
 		if (pp_node_array[cnt] == NULL) {
 			mp_clean(&h_mem);
 			return -1;
@@ -36,11 +36,11 @@ int main(int argc, char *argv[])
 #endif
 
 	for (cnt = 0; cnt < NEW_NODE_NUM; cnt += 3) {
-		mp_del_node(h_mem, pp_node_array[cnt]);
+		mp_del_node_of(h_mem, pp_node_array[cnt]);
 	}
-	mp_del_node(h_mem, pp_node_array[NEW_NODE_NUM - 1]);
+	mp_del_node_of(h_mem, pp_node_array[NEW_NODE_NUM - 1]);
 	for (cnt = 0; cnt < NEW_NODE_NUM; cnt += 7) {
-		pp_node_array[cnt] = mp_new_node(h_mem);
+		pp_node_array[cnt] = mp_new_node_of(h_mem);
 	}
 	mp_dump_pool(h_mem);
 	mp_clean(&h_mem);

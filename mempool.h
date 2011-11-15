@@ -30,7 +30,11 @@
 /* 
  * customization area
  */
-//#define DEBUG_PRINT_ON	1
+//#define DEBUG_PRINT_ON	0
+//#define ENABLE_SHM	0
+//#define ENABLE_SEM	0
+
+
 #define mp_malloc(x)	malloc(x)
 #define mp_free(x)	free(x)
 
@@ -67,6 +71,8 @@ typedef int		status_t;
 struct mp_mem_head_t {
 	struct mp_node_t *p_node_first;
 	struct mp_node_t *p_node_tail;
+	mp_u32 node_first_offset;
+	mp_u32 node_tail_offset;
 	mp_u32 size;
 	mp_u32 used_node_num;
 	mp_u32 max_node_num;
@@ -83,9 +89,25 @@ struct mp_node_t {
 struct mp_mem_head_t *mp_alloc(mp_i32 **pp_mem_base, mp_u32 max_node_num);
 status_t mp_clean(mp_i32 **pp_mem_base);
 struct mp_node_t *mp_new_node(mp_i32 *p_mem_base);
+struct mp_node_t *mp_new_node_of(mp_i32 *p_mem_base);
 status_t mp_del_node(mp_i32 *p_mem_base, struct mp_node_t *p_node);
+status_t mp_del_node_of(mp_i32 *p_mem_base, struct mp_node_t *p_node);
 void mp_dump_pool(mp_i32 *p_mem_base);
 struct mp_node_t *mp_get_node(mp_i32 *p_mem_base, mp_u32 node_id);
+#ifdef ENABLE_SHM
+mp_i32 mp_shm_alloc(mp_i32 **pp_mem_base, key_t key, mp_u32 max_node_num);
+status_t mp_shm_clean(mp_i32 shmid, mp_i32 **pp_mem_base);
+status_t mp_shm_detach(mp_i32 shmid, mp_i32 *p_mem_base);
+status_t mp_shm_init(mp_i32 *p_mem_base, mp_u32 max_node_num);
+struct mp_node_t *mp_shm_new_node(mp_i32 *p_mem_base);
+status_t mp_shm_del_node(mp_i32 *p_mem_base, struct mp_node_t *p_node);
+#endif
+#ifdef ENABLE_SEM
+mp_i32 mp_sem_create(mp_i32 key);
+status_t mp_sem_delete(mp_i32 semid);
+status_t mp_sem_acquire(mp_i32 semid);
+status_t mp_sem_release(mp_i32 semid);
+#endif
 
 
 #endif /* __MEMPOOL_H__ */
