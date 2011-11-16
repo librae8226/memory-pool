@@ -5,7 +5,6 @@
 
 
 #define ALLOC_NODE_NUM	16
-#define NEW_NODE_NUM	16
 #define PUBLIC_SHM_KEY	1234
 
 int main(int argc, char *argv[])
@@ -13,6 +12,7 @@ int main(int argc, char *argv[])
 	int *h_mem = NULL;
 	int shmid = -1;
 	struct mp_node_t *p_node = NULL;
+	unsigned int time = 0;
 
 	shmid = mp_shm_alloc(&h_mem, PUBLIC_SHM_KEY, ALLOC_NODE_NUM);
 	if (shmid == -1) {
@@ -24,10 +24,15 @@ int main(int argc, char *argv[])
 		printf("create new node failed!\n");
 		return -1;
 	}
-//	mp_dump_pool(h_mem);
-	sleep(5);
+	/* FIXME call mp_dump_pool() could cause a segmentation fault */
+	/*mp_dump_pool(h_mem);*/
+	if (argc == 2) {
+		time = atoi(argv[1]);
+		sleep(time);
+	}
+	else
+		sleep(5);
 	mp_del_node_of(h_mem, p_node);
-//	mp_dump_pool(h_mem);
 	mp_shm_detach(shmid, h_mem);
 	return 0;
 }
