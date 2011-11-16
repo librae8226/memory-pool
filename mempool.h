@@ -30,9 +30,10 @@
 /* 
  * customization area
  */
-//#define DEBUG_PRINT_ON	0
-#define ENABLE_SHM	0
-#define ENABLE_SEM	0
+//#define DEBUG_PRINT_ON
+#define ENABLE_SHM
+#define ENABLE_SEM
+#define ENABLE_MSGQ
 
 
 #define mp_malloc(x)	malloc(x)
@@ -96,6 +97,7 @@ struct mp_node_t *mp_new_node(mp_i32 *p_mem_base);
 struct mp_node_t *mp_new_node_of(mp_i32 *p_mem_base);
 status_t mp_del_node(mp_i32 *p_mem_base, struct mp_node_t *p_node);
 status_t mp_del_node_of(mp_i32 *p_mem_base, struct mp_node_t *p_node);
+void mp_update_pool(mp_i32 *p_mem_base);
 void mp_dump_pool(mp_i32 *p_mem_base);
 struct mp_node_t *mp_get_node(mp_i32 *p_mem_base, mp_u32 node_id);
 #ifdef ENABLE_SHM
@@ -111,6 +113,8 @@ mp_i32 mp_sem_create(mp_i32 key);
 status_t mp_sem_delete(mp_i32 semid);
 status_t mp_sem_acquire(mp_i32 semid);
 status_t mp_sem_release(mp_i32 semid);
+#endif
+#ifdef ENABLE_MSGQ
 #endif
 
 

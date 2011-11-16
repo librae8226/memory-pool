@@ -177,19 +177,22 @@ struct mp_node_t *mp_new_node_of(mp_i32 *p_mem_base)
 		/* use i+1 to start from 1, 0 for null */
 		p_node_new->node_id = i + 1;
 		p_node_new->p_next = NULL;
+		p_node_new->next_offset = -1;
 		if (p_mem_head->used_node_num == 0) {
 			p_node_new->p_prev = NULL;
+			p_node_new->prev_offset = -1;
 			p_mem_head->node_first_offset = 0;
 		} else {
 			p_node_tail = (struct mp_node_t *)(p_mem_head + 1)
 				+ p_mem_head->node_tail_offset;
 			p_node_new->p_prev = p_node_tail;
+			p_node_new->prev_offset = p_mem_head->node_tail_offset;
 			p_node_tail->p_next = p_node_new;
+			p_node_tail->next_offset = p_node_new->node_id - 1;
 		}
 		p_mem_head->node_tail_offset = i;
 		p_mem_head->used_node_num++;
 	}
-
 	return p_node_new;
 }
 
@@ -247,34 +250,76 @@ status_t mp_del_node_of(mp_i32 *p_mem_base, struct mp_node_t *p_node)
 
 	if (p_node == p_node_first) {
 		if (p_node != p_node_tail) {
-			p_mem_head->node_first_offset =
-				p_node->p_next->node_id - 1;
+			p_mem_head->node_first_offset = p_node->next_offset;
+			p_node->p_next = mp_get_node(p_mem_base,
+					p_node->next_offset + 1);
 			p_node->p_next->p_prev = NULL;
+			p_node->p_next->prev_offset = -1;
 		} else {
 			p_mem_head->node_first_offset = -1;
 			p_mem_head->node_tail_offset = -1;
 		}
 	} else if (p_node == p_node_tail) {
 		if (p_node != p_node_first) {
-			p_mem_head->node_tail_offset =
-				p_node->p_prev->node_id - 1;
+			p_mem_head->node_tail_offset = p_node->prev_offset;
+			p_node->p_prev = mp_get_node(p_mem_base,
+					p_node->prev_offset + 1);
 			p_node->p_prev->p_next = NULL;
+			p_node->p_prev->next_offset = -1;
 		} else {
 			p_mem_head->node_first_offset = -1;
 			p_mem_head->node_tail_offset = -1;
 		}
 	} else {
+		p_node->p_prev = mp_get_node(p_mem_base,
+				p_node->prev_offset + 1);
+		p_node->p_next = mp_get_node(p_mem_base,
+				p_node->next_offset + 1);
 		p_node->p_prev->p_next = p_node->p_next;
 		p_node->p_next->p_prev = p_node->p_prev;
+		p_node->p_prev->next_offset = p_node->next_offset;
+		p_node->p_next->prev_offset = p_node->prev_offset;
 	}
 	p_mem_head->used_node_num--;
 	memset(p_node, 0, sizeof(struct mp_node_t)); /* FIXME redundant? */
 	p_node->p_prev = NULL;
 	p_node->p_next = NULL;
+	p_node->prev_offset = -1;
+	p_node->next_offset = -1;
 	p_node->used = 0;
 	p_node->node_id = 0;
 	p_node = NULL; /* FIXME is this necessary? */
 	return 0;
+}
+
+/*
+ * @brief    update memory pool, usually used in shared memory pool
+ *           in normal memory pool use, this call may not make sense
+ * @param    p_mem_base -i- address of memory base
+ * @return   none
+ * @note     refresh all the data pointer in memory pool by offset
+ *           avoid the misaccess of logic address
+ *           before any direct access to node pointers,
+ *           this function should be called
+ */
+void mp_update_pool(mp_i32 *p_mem_base)
+{
+	struct mp_mem_head_t *p_mem_head = NULL;
+	struct mp_node_t *p_node = NULL;
+	mp_i32 cnt = 0;
+
+	if (p_mem_base == NULL)
+		return;
+	p_mem_head = (struct mp_mem_head_t *)p_mem_base;
+	p_node = (struct mp_node_t *)(p_mem_head + 1);
+	for (cnt = 0; cnt < p_mem_head->max_node_num; cnt++, p_node++) {
+		if (p_node->used == 1) {
+			p_node->p_next =
+				mp_get_node(p_mem_base, p_node->next_offset + 1);
+			p_node->p_prev=
+				mp_get_node(p_mem_base, p_node->prev_offset + 1);
+		}
+	}
 }
 
 /*
@@ -290,6 +335,7 @@ void mp_dump_pool(mp_i32 *p_mem_base)
 	struct mp_node_t *p_node_first = NULL;
 	struct mp_node_t *p_node_tail = NULL;
 
+	mp_update_pool(p_mem_base);
 	if (p_mem_base == NULL)
 		return;
 	p_mem_head = (struct mp_mem_head_t *)p_mem_base;
@@ -321,6 +367,7 @@ void mp_dump_pool(mp_i32 *p_mem_base)
 
 /*
  * @brief    get the node pointer of specific node_id
+ *           also used to get node by offset
  * @param    node_id -i- node id in struct mp_node_t
  * @return   node pointer
  */

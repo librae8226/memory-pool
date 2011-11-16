@@ -24,9 +24,10 @@ int main(int argc, char *argv[])
 		printf("create new node failed!\n");
 		return -1;
 	}
-	mp_dump_pool(h_mem);
-	sleep(10);
+//	mp_dump_pool(h_mem);
+	sleep(5);
 	mp_del_node_of(h_mem, p_node);
+//	mp_dump_pool(h_mem);
 	mp_shm_detach(shmid, h_mem);
 	return 0;
 }

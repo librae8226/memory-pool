@@ -54,9 +54,10 @@ int main(int argc, char *argv[])
 		pp_node_array[cnt] = mp_new_node_of(h_mem);
 	}
 #endif
-	mp_dump_pool(h_mem);
-	sleep(60);
-	mp_dump_pool(h_mem);
+	for (cnt = 0; cnt < 10; cnt++) {
+		mp_dump_pool(h_mem);
+		sleep(5);
+	}
 	mp_shm_clean(shmid, &h_mem);
 	return 0;
 }
