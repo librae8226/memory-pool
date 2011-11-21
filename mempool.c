@@ -591,7 +591,7 @@ mp_i32 mp_sem_create(mp_i32 key)
 	union semun sem_union;
 
 	semid = semget((key_t)key, 1, 0666 | IPC_CREAT);
-	if (semid <= 0)
+	if (semid < 0)
 		return -1;
 	sem_union.val = 1;
 	if (semctl(semid, 0, SETVAL, sem_union) == -1)
