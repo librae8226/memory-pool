@@ -36,8 +36,8 @@
 
 /*
  * @brief    alloc a continuous memory block for list storage
- *           cost ALLOC_NODE_NUMBER*16+20 (byte) more memory
- *           compared with seperate scattered data blocks
+ *           cost ALLOC_NODE_NUMBER*sizeof(node) + sizeof(head) (byte) more
+ *           memory compared with seperate scattered data blocks
  * @param    pp_mem_base -i/o- pointer to the address of memory base if success
  *           max_node_num -i- number of node entities user wants to alloc
  * @return   return a pointer to the memory head if success, else a NULL
