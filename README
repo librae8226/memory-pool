@@ -1,1 +1,8 @@
 Memory Pool simple implementation.
+
+In linux, check share resources info by type:
+    $ ipcs
+in command line.
+Or use:
+    $ ipcrm
+to delete specific resource.
