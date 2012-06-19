@@ -622,7 +622,7 @@ status_t mp_sem_acquire(mp_i32 semid)
 	sem_b.sem_num = 0;
 	sem_b.sem_op = -1;
 	sem_b.sem_flg = SEM_UNDO;
-	if (semop(semid, &sem_b, 1) == -1) {    
+	if (semop(semid, &sem_b, 1) == -1) {
 		return -1;
 	}
 	return 0;
@@ -640,7 +640,7 @@ status_t mp_sem_release(mp_i32 semid)
 	sem_b.sem_num = 0;
 	sem_b.sem_op = 1;
 	sem_b.sem_flg = SEM_UNDO;
-	if (semop(semid, &sem_b, 1) == -1) {    
+	if (semop(semid, &sem_b, 1) == -1) {
 		return -1;
 	}
 	return 0;
